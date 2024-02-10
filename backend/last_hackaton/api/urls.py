@@ -7,7 +7,7 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView, TokenRefreshView
 )
 
-from posts.views import GroupViewSet, PostViewSet, AsyncFeedViewSet, HashtagSerializer
+from posts.views import GroupViewSet, PostViewSet, AsyncFeedViewSet, HashtagViewSet
 
 from users.views import (
     ProfileViewSet,

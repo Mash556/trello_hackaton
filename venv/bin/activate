@@ -38,7 +38,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="/home/hello/Desktop/trello_hackaton/venv"
+VIRTUAL_ENV="/home/alina/Desktop/gg/trello_hackaton/venv"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"

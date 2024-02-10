@@ -7,7 +7,7 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView, TokenRefreshView
 )
 
-from posts.views import GroupViewSet, PostViewSet, AsyncFeedViewSet
+from posts.views import GroupViewSet, PostViewSet, AsyncFeedViewSet, HashtagSerializer
 
 from users.views import (
     ProfileViewSet,
@@ -26,6 +26,7 @@ router.register(r"groups", GroupViewSet, basename="groups")
 router.register(r"posts", PostViewSet, basename="posts")
 router.register(r'feeds', AsyncFeedViewSet, basename='feed')
 router.register(r'profiles', ProfileViewSet, basename='profile')
+router.register(r'hashtags', HashtagViewSet, basename='hashtags')
 
 schema_view = get_schema_view(
     openapi.Info(

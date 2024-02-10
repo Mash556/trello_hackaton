@@ -119,6 +119,15 @@ class Post(models.Model):
         if self.group and self.author != self.group.owner:
             raise ValueError("Только автор группы может добавить пост.")
         super().save(*args, **kwargs)
+        
+        words = self.text.split()
+        hashtags_to_add = []
+        for word in words:
+            if word.startswith('#'):
+                hashtag_text = word[1:]
+                hashtag, created = Hashtag.objects.get_or_create(name=hashtag_text)
+                hashtags_to_add.append(hashtag)
+        self.hashtags.add(*hashtags_to_add)
 
 
 

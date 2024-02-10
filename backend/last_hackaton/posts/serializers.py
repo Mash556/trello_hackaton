@@ -3,7 +3,7 @@ from rest_framework import serializers
 from drf_base64.fields import Base64ImageField
 from django.db.models import Count
 
-from .models import Group, Post, Comment, GroupSubscription
+from .models import Group, Post, Comment, GroupSubscription, Hashtag
 from like.serializers import LikeSerializer
 class GroupSerializer(serializers.ModelSerializer):
     class Meta:
@@ -33,7 +33,11 @@ class CommentSerializer(serializers.ModelSerializer):
             'id', 'post', 'author_username', 'text', 'pub_date', 'parent_comment'
         )
 
-
+class HashtagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Hashtag
+        fields = ['name'] 
+        
 class PostSerializer(serializers.ModelSerializer):
     """Посты."""
     image = Base64ImageField()
@@ -53,7 +57,8 @@ class PostSerializer(serializers.ModelSerializer):
             'video',
             'parent_post',
             'comments',
-            'likes'
+            'likes',
+            'hashtags'
         )
 
     def validate_image(self, image):
@@ -76,6 +81,13 @@ class PostSerializer(serializers.ModelSerializer):
         )
         rep['like_count'] = count['post__count']
         return rep
+    
+    def create(self, validated_data):
+        hashtags_data = validated_data.pop('hashtags', None)
+        post = Post.objects.create(**validated_data)
+        if hashtags_data:
+            post.hashtags.set(hashtags_data)
+        return post
 
 
 class GroupSubscriptionSerializer(serializers.ModelSerializer):

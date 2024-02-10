@@ -9,13 +9,15 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from like.models import Like
-from .models import Group, Post, Comment, GroupSubscription
+from .models import Group, Post, Comment, GroupSubscription, Hashtag
 from .permissions import IsOwnerAdminOrReadOnly, IsAuthorAdminOrReadOnly
 from .serializers import (
     GroupSerializer,
     PostSerializer,
     CommentSerializer,
-    GroupSubscriptionSerializer, FeedSerializer
+    GroupSubscriptionSerializer, 
+    FeedSerializer,
+    HashtagSerializer
 )
 from users.models import Follow
 
@@ -83,6 +85,26 @@ class GroupViewSet(viewsets.ModelViewSet):
                 status=HTTPStatus.FORBIDDEN
             )
 
+class HashtagViewSet(viewsets.ModelViewSet):
+    queryset = Hashtag.objects.all()
+    serializer_class = HashtagSerializer
+
+    @action(detail=False, methods=['get'])
+    def search_posts_by_hashtag(self, request):
+        hashtag_name = request.query_params.get('hashtag', None)
+
+        if not hashtag_name:
+            return Response({"error": "Хэштег не указан"}, status=400)
+
+        try:
+            hashtag = Hashtag.objects.get(name=hashtag_name)
+        except Hashtag.DoesNotExist:
+            return Response({"error": "Хэштег не найден"}, status=404)
+
+        posts = hashtag.posts.all()
+        serializer = PostSerializer(posts, many=True)
+
+        return Response(serializer.data)
 
 class PostViewSet(viewsets.ModelViewSet):
     """Посты."""
@@ -130,7 +152,24 @@ class PostViewSet(viewsets.ModelViewSet):
     def recomend(self, request):
         rec_post = Post.objects.annotate(num_likes=Count('like_post')).order_by('-num_likes')
         serializer = PostSerializer(rec_post, many=True)
-        return Response(serializer.data, status=200)       
+        return Response(serializer.data, status=200)    
+    
+    @action(detail=False, methods=['get'])
+    def search_posts_by_hashtag(self, request):
+        hashtag_name = request.query_params.get('hashtag', None)
+
+        if not hashtag_name:
+            return Response({"error": "Хэштег не указан"}, status=400)
+
+        try:
+            hashtag = Hashtag.objects.get(name=hashtag_name)
+        except Hashtag.DoesNotExist:
+            return Response({"error": "Хэштег не найден"}, status=404)
+
+        posts = hashtag.posts.all()
+        serializer = self.get_serializer(posts, many=True)
+
+        return Response(serializer.data)   
 
 class AsyncFeedViewSet(viewsets.ModelViewSet):
     serializer_class = FeedSerializer
